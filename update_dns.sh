@@ -47,13 +47,16 @@ zone_ref=$(curl -s -H "X-Api-Key: ${GANDI_API_KEY}" \
     | jq -r '.zone_records_href')
 
 # Update the A Record of the subdomain using PUT
-for subdomain in ${subdomains[@]}; do
-    echo "Updating $subdomain"
-    curl -D- -X PUT -H "Content-Type: application/json" \
-        -H "X-Api-Key: $GANDI_API_KEY" \
-        -d "{\"rrset_name\": \"$subdomain\",
-             \"rrset_type\": \"A\",
-             \"rrset_ttl\": 1200,
-             \"rrset_values\": [\"$ip\"]}" \
-        $zone_ref/$subdomain/A
+while true; do
+    for subdomain in ${subdomains[@]}; do
+        echo "Updating $subdomain"
+        curl -D- -X PUT -H "Content-Type: application/json" \
+            -H "X-Api-Key: $GANDI_API_KEY" \
+            -d "{\"rrset_name\": \"$subdomain\",
+                 \"rrset_type\": \"A\",
+                 \"rrset_ttl\": 1200,
+                 \"rrset_values\": [\"$ip\"]}" \
+            $zone_ref/$subdomain/A
+    done
+    sleep 900
 done
